@@ -1,0 +1,6 @@
+[package]
+name = "homework_module_two_streaming_quotes"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
