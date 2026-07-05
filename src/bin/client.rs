@@ -89,7 +89,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         server_addr = Some(src_addr);
                     }
                 }
-                Err(_) => continue,
+                Err(e) => {
+                    match e.kind() {
+                        std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock => {
+                            continue;
+                        }
+                        _ => {
+                            eprintln!("PING receiver error: {}", e);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -130,12 +140,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
             }
-            Err(e) => {
-                if e.kind() != std::io::ErrorKind::TimedOut {
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock => {
+                    continue;
+                }
+                _ => {
                     eprintln!("UDP receive error: {}", e);
                     break;
                 }
-            }
+            },
         }
     }
 
